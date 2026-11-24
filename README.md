@@ -12,4 +12,4 @@ Run `python3 -m http.server 8000` from the project directory and visit http://lo
 
 ## Credits and reuse
 
-Created by Pouya Hosseini. The [license](LICENSE) covers original project material. The basemap uses [Natural Earth](https://www.naturalearthdata.com/about/terms-of-use/) public-domain relief and country outlines. Citations accompany the research models. Seven named Western diatonic modes are available alongside the regional collection. The preview license covers original code and artwork. Third-party references retain their respective rights.
+Created by Dr. Pouya Hosseini. The [license](LICENSE) covers original project material. The basemap uses [Natural Earth](https://www.naturalearthdata.com/about/terms-of-use/) public-domain relief and country outlines. Citations accompany the research models. Seven named Western diatonic modes are available alongside the regional collection. See the [Copyright & Terms of Use](https://persianmusicscales.github.io/international-music-scales-atlas/about.html#terms) for the rights reservation covering original materials. Third-party references retain their respective rights.
