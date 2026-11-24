@@ -14,3 +14,40 @@ header{background:#10323b;color:#f1faf7;border:0}header a{color:inherit}header .
 [hidden]{display:none!important}
 main{max-width:1050px}.intro{text-align:center}.intro h1{font:500 clamp(2rem,5vw,3.8rem)/1.1 Georgia,serif}.mapbox{position:relative;border-radius:20px}#earth{height:clamp(350px,62svh,650px);min-height:0;flex:auto}.mapbar{position:relative;justify-content:flex-end;gap:.6rem}.mapbar details{margin-right:auto}.mapbar summary{color:#fff}.mapbar small{color:#cae1df}.mapbar details label{position:absolute;bottom:100%;left:.5rem;z-index:3;background:var(--card);padding:.7rem;border-radius:10px;max-width:95%}.floating{position:absolute;z-index:2;top:55%;left:50%;width:min(350px,45%);padding:1rem 1.2rem;background:var(--card);color:var(--text);border-radius:14px;box-shadow:0 12px 40px #071c2580;animation:appear .24s ease-out}.floating h2{font-size:1.1rem;padding-right:2rem}.floating p:empty{display:none}#dismiss{position:absolute;right:.3rem;top:.1rem;border:0;background:transparent;font-size:1.5rem}#detail{max-width:780px;margin:0 auto;padding:clamp(.85rem,3vw,2rem)}#title{font-size:clamp(2rem,5vw,3.4rem);outline:0}#subtitle,#steps{color:var(--muted)}.stage{position:relative;display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:.5rem}#panels{grid-column:1/-1;grid-row:1;align-self:center;padding:15px 0}#panels .interactive-wheel{max-width:460px}.stage #return,.stage #info{grid-row:1;align-self:start;z-index:1}.stage #return{grid-column:1;justify-self:start;display:grid;justify-items:center;background:transparent;border:0;font-size:.8rem}.planet{width:48px;height:48px;border-radius:50%;background:radial-gradient(circle at 32% 28%,transparent 20%,#041b2c99 72%,#031322 96%),url(globe-relief.jpg) center/auto 100%;box-shadow:0 1px 10px #255b6655;opacity:.9;animation:glide 22s linear infinite,bob 4s ease-in-out infinite}.stage #info{grid-column:3;justify-self:end}#signature{grid-column:1;justify-self:start}#play{grid-column:2;background:#116166;color:white;padding:.6rem 1.3rem;border:none;border-radius:2rem}#steps{text-align:center}#score,#explanation{margin:.8rem 0}#settings{border-top:1px solid var(--line);padding-top:.3rem}footer{justify-content:space-between}#comparison-panel svg{max-height:270px}
 @keyframes glide{to{background-position:center,200% center}}@keyframes bob{50%{transform:translateY(-3px)}}@keyframes appear{from{opacity:0;transform:translateY(7px)}}@media(max-width:650px){.floating{width:auto;left:.75rem;right:.75rem;top:auto;bottom:4.25rem}.stage #return,.stage #info{grid-row:1}.stage #panels{grid-row:2;padding:0}.stage #signature,.stage #play{grid-row:3}.stage{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}#signature{padding:.4rem;font-size:.82rem}.mapbar small{display:none}.mapbox{min-height:0}#earth{height:clamp(330px,63svh,520px)}.stage .planet{width:34px;height:34px}}@media(prefers-reduced-motion:reduce){.planet,.floating{animation:none}}
+
+/* Shared canvas for the globe and the scale studio. */
+:root, :root:not([data-theme=Light]) {
+  color-scheme: dark;
+  --bg: #13292e; --card: #1b383e; --text: #f0f6f3; --muted: #c0d1d0;
+  --line: #526e72; --accent: #a6e2d6; --soft: #28494e;
+}
+body {min-height:100svh;display:flex;flex-direction:column;background:var(--bg)}
+header, .mapbox, .mapbar, #detail, footer {background:transparent;border:none;border-radius:0;box-shadow:none}
+header .mast, footer {width:100%;padding:.5rem clamp(.8rem,3vw,3rem)}
+main {width:100%;max-width:none;padding:0;flex:1;display:grid}
+#atlas {display:flex;flex-direction:column}
+.intro {margin:.4rem 0}
+.intro h1 {font-size:clamp(1.45rem,3vw,2.4rem)}
+.mapbox {flex:1;min-height:0}
+#earth {height:auto;min-height:clamp(240px,48svh,580px);flex:1}
+.mapbar {padding:.4rem clamp(.8rem,3vw,3rem)}
+.floating, .mapbar details label {background:rgba(16,42,48,.86);backdrop-filter:blur(8px);color:var(--text)}
+.floating {top:auto;bottom:4.4rem}
+.floating select {background:rgba(26,58,64,.82)}
+select option {background:var(--card);color:var(--text)}
+#detail {width:min(100%,780px);padding:clamp(.8rem,2vw,1.5rem)}
+#panels .wheel {max-height:min(54svh,410px)}
+#panels {padding:.8rem 0}
+.dialface {fill:var(--bg)}
+#steps {font-variant-numeric:tabular-nums}
+#score.overlay, #explanation.overlay {
+  position:fixed;z-index:10;width:min(29rem,calc(100% - 20px));overflow:auto;overscroll-behavior:contain;
+  margin:0;background:#19383e;border:1px solid var(--line);border-radius:12px;
+  padding:1rem;box-shadow:0 10px 48px #00121688;animation:appear .16s ease-out;
+}
+.overlay .close {float:right;position:sticky;top:0;margin:0 0 .3rem .5rem;min-width:44px;font-size:1.3rem}
+.overlay h2,.overlay h3 {margin:.4rem 0}
+.overlay .scroll {clear:both}
+footer {padding-bottom:max(.6rem,env(safe-area-inset-bottom));color:var(--muted);font-size:.88rem}
+@media(max-width:650px){#panels .wheel{max-height:min(43svh,340px)}.mast .brand{font-size:.94rem}.brand img{width:32px}.mapbar{gap:.35rem}}
+@media(prefers-reduced-motion:reduce){.overlay{animation:none!important}}
