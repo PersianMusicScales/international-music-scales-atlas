@@ -2,7 +2,7 @@
 
 **Development preview.** Features and examples may change. Corrections and feedback are welcome.
 
-Select a geographic region to explore 216 documented tuning models across 17 navigation entries. Choose a category and tuning, then drag the inner diatonic ring to transpose in 50-cent steps. The outer circle preserves the ordered intervals. A degree selector explores rotations, and open spans retain their endpoints. Source interpretations remain under review.
+Start with D Dorian, or choose Shur to explore the Persian scale on any tonic. On a phone, add the Atlas to the home screen for standalone display. Select a geographic region to explore 216 documented tuning models across 17 navigation entries. Choose a category and tuning, then drag the inner diatonic ring to transpose in 50-cent steps. The outer circle preserves the ordered intervals. A degree selector explores rotations, and open spans retain their endpoints. Source interpretations remain under review.
 
 The public catalog contains app-facing model metadata, tuning intervals, references and geographic navigation. The research workbooks and notes are private.
 
@@ -14,4 +14,4 @@ Run `python3 -m http.server 8000` from the project directory and visit http://lo
 
 ## Credits and reuse
 
-Created by Pouya Hosseini. The [license](LICENSE) covers original project material. The basemap uses [Natural Earth](https://www.naturalearthdata.com/about/terms-of-use/) public-domain relief and country outlines. Citations accompany the research models. Five additional mathematical examples are generated in examples.js. The preview license covers original code and artwork. Third-party references retain their respective rights.
+Created by Pouya Hosseini. The [license](LICENSE) covers original project material. The basemap uses [Natural Earth](https://www.naturalearthdata.com/about/terms-of-use/) public-domain relief and country outlines. Citations accompany the research models. Seven named Western diatonic modes are available alongside the regional collection. The preview license covers original code and artwork. Third-party references retain their respective rights.

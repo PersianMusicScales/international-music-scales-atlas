@@ -32,3 +32,11 @@ test('Every geographic model is selectable and transposable through 24 ring posi
  assert.match(notation(major,2,'Sharps','Major'),/F♯ · C♯/)
  assert.deepEqual(rotateModel(major,1).intervals_cents,[200,100,200,200,200,100,200])
 })
+import {modes} from './modes.js'
+test('Dorian signatures follow tonic, and Shur preserves its research tuning',()=>{
+ const dorian=modes.find(m=>m.name==='Dorian')
+ for(const [tonic,signature] of [[0,'B♭ · E♭'],[2,'All natural'],[4,'F♯ · C♯']])
+  assert.ok(notation(dorian,tonic,'Sharps','Major').includes(signature))
+ const shur=catalog.scales.find(m=>m.name==='Shur')
+ for(const t of [0,2,11])assert.deepEqual(analyze(shur,t).rows.map(r=>r.p),positions(shur.intervals_cents).slice(0,-1))
+})
