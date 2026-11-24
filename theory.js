@@ -16,7 +16,7 @@ function subsets(count){
 export function analyze(m,tonic=0,pref='Sharps',ref='Major',alternative=0){
  const pitches=positions(m.intervals_cents)
  if(m.circle_ready)pitches.pop()
- const noteNames=names(pref), first=letters.indexOf(noteNames[tonic][0]),template=references[ref]||references.Major
+ const noteNames=names(pref), first=letters.indexOf(noteNames[Math.floor(tonic)][0]),template=references[ref]||references.Major
  const eligible=m.circle_ready && [5,6,7].includes(pitches.length)
  const candidates=eligible?subsets(pitches.length).map(ds=>({ds,cost:ds.reduce((s,d,i)=>s+(pitches[i]-template[d])**2,0)})).sort((a,b)=>a.cost-b.cost):[]
  const degrees=candidates[alternative]?.ds||candidates[0]?.ds

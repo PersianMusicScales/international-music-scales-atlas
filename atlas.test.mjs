@@ -15,3 +15,20 @@ test('Five generated examples retain their ordered positions for every tonic',()
   }
  }
 })
+import {readFileSync} from 'node:fs'
+import {wheel,rotateModel,rotateTonic,notation} from './wheel.js'
+const catalog=JSON.parse(readFileSync(new URL('./catalog.json',import.meta.url)))
+test('Every geographic model is selectable and transposable through 24 ring positions',()=>{
+ assert.equal(catalog.scales.length,216)
+ for(const m of catalog.scales){
+  assert.ok(catalog.regions.find(g=>g.id===m.geo_id).model_ids.includes(m.id))
+  for(let t=0;t<12;t+=.5){
+   assert.doesNotMatch(notation(m,t,'Sharps','Major'),/undefined|NaN/)
+   const drawing=wheel(m,t,'Sharps','Major');assert.equal(drawing.includes('class="dial"'),m.circle_ready)
+  }
+ }
+ assert.equal(rotateTonic(11.5,1),0)
+ const major=models.find(m=>m.id==='major')
+ assert.match(notation(major,2,'Sharps','Major'),/F♯ · C♯/)
+ assert.deepEqual(rotateModel(major,1).intervals_cents,[200,100,200,200,200,100,200])
+})
