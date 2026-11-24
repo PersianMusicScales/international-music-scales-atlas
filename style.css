@@ -75,3 +75,7 @@ header,.mapbar,.mapbar summary,.mapbar small {color:var(--text)}
 @media(prefers-reduced-motion:no-preference){button,select,.overlay{transition:background-color .15s,color .15s}}
 
 .about{padding-block:2rem}.about>img,.project-link img{border-radius:20%}.project-link{display:flex;align-items:center;gap:1rem;padding:.75rem 0;color:var(--text);text-decoration:none;border-bottom:1px solid var(--line)}.project-link strong{color:var(--accent)}.project-link:hover strong{text-decoration:underline}footer a{padding:.5rem 0}header .mast,footer{padding-inline:max(.8rem,env(safe-area-inset-left)) max(.8rem,env(safe-area-inset-right))}
+
+.compare-select{max-width:32rem;margin:1rem 0}.comparative text{text-anchor:middle;dominant-baseline:central;pointer-events:none}.comparative [data-layer],.span-comparison [data-layer]{cursor:pointer}.comparative [data-layer="1"] path:first-of-type{opacity:.77}.selected-degree path:first-of-type,.selected-degree rect{filter:brightness(1.28)}.selected-degree{outline:1px dashed var(--accent)}#inspection,#legend{color:var(--muted);font-size:.9rem}.span-comparison svg{display:block;width:100%}#inspection:empty{display:none}#audition{display:block;margin:.65rem auto}.stage:has(.span-comparison) #panels{padding-block:5rem 1rem}
+
+#panels .span-dial{height:9rem}.span-comparison small{display:block}.comparative [data-degree]:focus-visible{outline:2px solid var(--accent)}
