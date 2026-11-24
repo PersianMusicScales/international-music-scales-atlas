@@ -3,7 +3,7 @@ import {modes,solfege} from './modes.js'
 import {esc} from './diagrams.js'
 import {nearestDegree} from './compare.js'
 import {positions,fmt,signed} from './theory.js'
-import {wheel,notation,rotateTonic,rotateModel,tonicName} from './wheel.js?v=compare7'
+import {wheel,notation,rotateTonic,rotateModel,tonicName} from './wheel.js?v=studio8'
 import {mountGlobe} from './globe.js?v=touch5'
 const by=id=>document.getElementById(id)
 const query=new URLSearchParams(location.search)
@@ -66,7 +66,7 @@ function openScale(m,start=0,push=true){
  clearTimeout(menuTimer);audio.stop();active=m;region=m.geo_id
  degree=m.circle_ready&&Number.isInteger(Number(start))&&start>=0&&start<m.notes_count?Number(start):0
  by('detail').hidden=false;by('atlas').hidden=true
- for(const [button,panel] of [['info','explanation'],['signature','score']]){by(button).setAttribute('aria-expanded','false');by(panel).hidden=true}
+ for(const [button,panel] of [['info','explanation'],['signature','score'],['compare','compare-panel']]){by(button).setAttribute('aria-expanded','false');by(panel).hidden=true}
  render();storeView(push);window.scrollTo(0,0);by('title').focus({preventScroll:true})
 }
 function current(){return rotateModel(active,degree)}
@@ -81,6 +81,9 @@ function render(){
  by('score').querySelector('.content').innerHTML=notation(m,t,pref,ref)
  const refs=active.source_ids.map(id=>sources.find(s=>s.id===id)).filter(Boolean)
  by('explanation').querySelector('.content').innerHTML='<h2>About this tuning</h2><p>'+esc([active.name,active.tradition,active.tuning_model].filter(Boolean).join(' · '))+'</p><p>'+(m.circle_ready?'Read clockwise from the top. Each colored arc spans one step between successive scale notes. Its width shows the interval size in cents (100¢ = one equal-tempered semitone). The inner letters are diatonic reference notes. Drag them to change the tonic. Signature lists the sounding notes and their exact alterations.':'This open span ends at its documented final pitch.')+'</p>'+refs.map(s=>'<p><a href="'+esc(s.url)+'">'+esc(s.citation)+'</a></p>').join('')+(refs.length?'<small>Source interpretation under review.</small>':'')
+ by('compare').classList.toggle('active',Boolean(other))
+ by('compare').setAttribute('aria-label',other?'Compare · '+other.name:'Compare')
+ by('remove-comparison').hidden=!other
  by('legend').hidden=!other;by('audition').hidden=!other
  const rings=m.circle_ready&&other?.circle_ready
  by('legend').textContent=other?(rings?'Outer':'Upper')+' · '+m.name+'　'+(rings?'Inner':'Lower')+' · '+other.name:''
@@ -113,7 +116,7 @@ function positionPanel(){
  panel.style.left=Math.max(gap,Math.min(box.left,document.documentElement.clientWidth-panel.offsetWidth-gap))+'px'
  panel.style.top=(down?box.bottom+gap:Math.max(gap,box.top-gap-panel.offsetHeight))+'px'
 }
-for(const [id,target] of [['info','explanation'],['signature','score']]){
+for(const [id,target] of [['info','explanation'],['signature','score'],['compare','compare-panel']]){
  const button=by(id),panel=by(target)
  button.onclick=()=>{
   if(opened?.button===button){closePanel(true,true);return}
@@ -124,7 +127,7 @@ for(const [id,target] of [['info','explanation'],['signature','score']]){
  panel.querySelector('.close').onclick=()=>closePanel(true,true)
 }
 document.addEventListener('pointerdown',event=>{
- if(opened&&!opened.button.contains(event.target)&&!opened.panel.contains(event.target))closePanel(false,!event.target.closest('#signature,#info'))
+ if(opened&&!opened.button.contains(event.target)&&!opened.panel.contains(event.target))closePanel(false,!event.target.closest('#signature,#info,#compare'))
 })
 document.addEventListener('keydown',event=>{if(event.key==='Escape')closePanel(true,true)})
 const panelResize=new ResizeObserver(positionPanel)
@@ -137,7 +140,8 @@ for(const button of ['play','audition'])by(button).onclick=async()=>{
  try{await audio.start(button==='play'?current():lookup(by('comparison').value),tonic)}
  catch{by(button).textContent='Retry playback'}
 }
-by('comparison').onchange=()=>{audio.stop();render();storeView()}
+by('comparison').onchange=()=>{audio.stop();render();storeView();closePanel(true)}
+by('remove-comparison').onclick=()=>{by('comparison').value='';by('comparison').onchange()}
 function inspect(e){
  const segment=e.target.closest('[data-degree]')
  if(!segment)return

@@ -39,6 +39,8 @@ function staffNotes(rows){
  const y=k=>78-5*(k-2)
  let marks=''
  for(let k=2;k<=10;k+=2)marks+='<line x1="8" x2="'+(width-8)+'" y1="'+y(k)+'" y2="'+y(k)+'" stroke="currentColor" opacity=".55"/>'
+ // The spiral encircles G4 (y=68), the second line from the bottom.
+ marks+='<g aria-label="Treble clef" fill="none" stroke="currentColor" stroke-linecap="round"><path stroke-width="2.5" d="M23 74 C15 70 18 61 25 61 C35 60 37 74 28 78 C19 83 9 75 11 64 C13 53 28 46 29 32 C30 22 26 19 24 25 C20 34 23 48 25 60 L29 85 C31 96 19 99 19 90"/><circle cx="20" cy="89" r="2.8" fill="currentColor"/></g>'
  rows.forEach((r,i)=>{
   const k=first+r.degree,x=42+60*i
   for(let l=0;l>=k;l-=2)marks+='<line x1="'+(x-10)+'" x2="'+(x+10)+'" y1="'+y(l)+'" y2="'+y(l)+'" stroke="currentColor"/>'

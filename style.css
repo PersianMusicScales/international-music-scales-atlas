@@ -40,7 +40,7 @@ select option {background:var(--card);color:var(--text)}
 #panels {padding:.8rem 0}
 .dialface {fill:var(--bg)}
 #steps {font-variant-numeric:tabular-nums}
-#score.overlay, #explanation.overlay {
+#compare-panel.overlay, #score.overlay, #explanation.overlay {
   position:fixed;z-index:10;width:min(29rem,calc(100% - 20px));overflow:auto;overscroll-behavior:contain;
   margin:0;background:#19383e;border:1px solid var(--line);border-radius:12px;
   padding:1rem;box-shadow:0 10px 48px #00121688;animation:appear .16s ease-out;
@@ -62,7 +62,7 @@ footer {padding-bottom:max(.6rem,env(safe-area-inset-bottom));color:var(--muted)
 }
 header,.mapbar,.mapbar summary,.mapbar small {color:var(--text)}
 .mapbar button,.floating select {background:var(--card);color:var(--text);border-color:var(--line)}
-#explanation.overlay,#score.overlay {background:var(--card)}
+#compare-panel.overlay,#explanation.overlay,#score.overlay {background:var(--card)}
 :root[data-theme=Light] :is(.floating,.mapbar details label){background:rgba(251,252,243,.91)}
 .appearance{display:flex;align-items:center;gap:.5rem}
 .appearance select{width:auto}
@@ -76,6 +76,23 @@ header,.mapbar,.mapbar summary,.mapbar small {color:var(--text)}
 
 .about{padding-block:2rem}.about>img,.project-link img{border-radius:20%}.project-link{display:flex;align-items:center;gap:1rem;padding:.75rem 0;color:var(--text);text-decoration:none;border-bottom:1px solid var(--line)}.project-link strong{color:var(--accent)}.project-link:hover strong{text-decoration:underline}footer a{padding:.5rem 0}header .mast,footer{padding-inline:max(.8rem,env(safe-area-inset-left)) max(.8rem,env(safe-area-inset-right))}
 
-.compare-select{max-width:32rem;margin:1rem 0}.comparative text{text-anchor:middle;dominant-baseline:central;pointer-events:none}.comparative [data-layer],.span-comparison [data-layer]{cursor:pointer}.comparative [data-layer="1"] path:first-of-type{opacity:.77}.selected-degree path:first-of-type,.selected-degree rect{filter:brightness(1.28)}.selected-degree{outline:1px dashed var(--accent)}#inspection,#legend{color:var(--muted);font-size:.9rem}.span-comparison svg{display:block;width:100%}#inspection:empty{display:none}#audition{display:block;margin:.65rem auto}.stage:has(.span-comparison) #panels{padding-block:5rem 1rem}
+.compare-select{max-width:32rem;margin:1rem 0}.comparative text{text-anchor:middle;dominant-baseline:central;pointer-events:none}.comparative [data-layer],.span-comparison [data-layer]{cursor:pointer}.comparative [data-layer="1"] path:first-of-type{opacity:.77}.selected-degree path:first-of-type,.selected-degree rect{filter:brightness(1.28)}#inspection,#legend{color:var(--muted);font-size:.9rem}.span-comparison svg{display:block;width:100%}#inspection:empty{display:none}#audition{display:block;margin:.65rem auto}.stage:has(.span-comparison) #panels{padding-block:5rem 1rem}
 
-#panels .span-dial{height:9rem}.span-comparison small{display:block}.comparative [data-degree]:focus-visible{outline:2px solid var(--accent)}
+#panels .span-dial{height:9rem}.span-comparison small{display:block}
+
+.stage #compare {grid-column:3;justify-self:end}
+.stage #compare.active {background:var(--accent);color:var(--bg)}
+.stage #return {gap:.25rem;padding:.45rem;color:var(--accent)}
+.stage .planet {width:clamp(62px,9vw,90px);height:auto;aspect-ratio:1;box-shadow:inset -3px -4px 8px #07191f88,0 5px 12px #132d3b55}
+@keyframes bob {50%{transform:translateY(-5px) rotate(-3deg)}}
+#return:is(:hover,:focus-visible) .planet {filter:brightness(1.14)}
+#return:active .planet {scale:.95}
+#remove-comparison {margin-top:.75rem}
+[data-degree]:focus {outline:none}
+[data-degree]:focus-visible > :is(path,rect):first-of-type {filter:drop-shadow(0 0 2px var(--text)) brightness(1.42)}
+.interactive-wheel:focus-visible {outline:none}
+.interactive-wheel:focus-visible .dialface {stroke:var(--accent);stroke-width:3}
+@media(max-width:650px){
+ .stage #compare {grid-row:3}
+ .stage :is(#compare,#signature,#play) {min-height:44px;padding:.4rem .5rem;font-size:clamp(.77rem,3vw,.9rem);white-space:nowrap}
+}
