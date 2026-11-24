@@ -73,3 +73,5 @@ header,.mapbar,.mapbar summary,.mapbar small {color:var(--text)}
 .guide-page{display:block;max-width:44rem;padding:1rem;line-height:1.65}
 .guide-page h2{margin-top:1.4rem;font-size:1.3rem}
 @media(prefers-reduced-motion:no-preference){button,select,.overlay{transition:background-color .15s,color .15s}}
+
+.about{padding-block:2rem}.about>img,.project-link img{border-radius:20%}.project-link{display:flex;align-items:center;gap:1rem;padding:.75rem 0;color:var(--text);text-decoration:none;border-bottom:1px solid var(--line)}.project-link strong{color:var(--accent)}.project-link:hover strong{text-decoration:underline}footer a{padding:.5rem 0}header .mast,footer{padding-inline:max(.8rem,env(safe-area-inset-left)) max(.8rem,env(safe-area-inset-right))}
