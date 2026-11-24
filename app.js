@@ -1,7 +1,7 @@
 import {models as examples} from './examples.js'
 import {esc} from './diagrams.js'
 import {fmt} from './theory.js'
-import {wheel,notation,rotateTonic,rotateModel,tonicName} from './wheel.js'
+import {wheel,notation,rotateTonic,rotateModel,tonicName} from './wheel.js?v=regional2'
 import {mountGlobe} from './globe.js'
 const by=id=>document.getElementById(id)
 const query=new URLSearchParams(location.search)
