@@ -1,3 +1,4 @@
+import {comparisonGraphic} from './compare.js'
 import {diagram,esc} from './diagrams.js?v=world4'
 import {analyze,fmt,names,signed} from './theory.js?v=regional1'
 
@@ -10,15 +11,14 @@ const mod=(x,n)=>(x%n+n)%n
 export function rotateTonic(t,delta){return mod(Math.round(2*t)+delta,24)/2}
 export function tonicName(t,pref){return names(pref)[Math.floor(t)]+(t%1?' +50¢':'')}
 const xy=(pitch,r)=>[180+r*Math.sin(pitch*Math.PI/600),180-r*Math.cos(pitch*Math.PI/600)]
-export function wheel(model,t,pref,ref){
- let svg=diagram(model,Math.floor(t),pref,ref)
- if(!model.circle_ready)return svg
+export function wheel(model,t,pref,ref,other){
+
  const ring=[0,2,4,5,7,9,11].map((n,i)=>{
   const p=(n-t)*100,[x,y]=xy(p,59),[a,b]=xy(p,71),[c,d]=xy(p,80)
   return '<line x1="'+a+'" y1="'+b+'" x2="'+c+'" y2="'+d+'" stroke="currentColor"/><text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" font-size="14">'+ 'CDEFGAB'[i]+'</text>'
  }).join('')
- svg=svg.replace(/<text x="180" y="180"[\s\S]*?<\/svg>$/,'')
- return svg+'<g class="dial"><circle cx="180" cy="180" r="80" class="dialface"/><g class="dial-notes">'+ring+'</g><path class="dial-arrows" d="M150 176l-4 4 4 4 M210 176l4 4-4 4" fill="none" stroke="currentColor"/><text x="180" y="180" text-anchor="middle" font-size="17">'+esc(tonicName(t,pref))+'</text><text x="180" y="196" text-anchor="middle" font-size="10">TONIC</text></g></svg>'
+ const dial='<g class="dial"><circle cx="180" cy="180" r="80" class="dialface"/><g class="dial-notes">'+ring+'</g><path class="dial-arrows" d="M150 176l-4 4 4 4 M210 176l4 4-4 4" fill="none" stroke="currentColor"/><text x="180" y="180" text-anchor="middle" font-size="17">'+esc(tonicName(t,pref))+'</text><text x="180" y="196" text-anchor="middle" font-size="10">TONIC</text></g>'
+ return comparisonGraphic(model,other,t,pref,dial)
 }
 const symbol=v=>Math.abs(v)<1e-6?'♮':Math.abs(v-100)<1e-6?'♯':Math.abs(v+100)<1e-6?'♭':signed(v)+'¢'
 export function notation(m,t,pref,ref){
@@ -30,7 +30,7 @@ export function notation(m,t,pref,ref){
  const seq=a.rows.map(r=>'<span class="note"><b>'+esc(r.letter)+'</b><small>'+symbol(r.offset)+'</small></span>').join('')
  const staff=a.rows.every(r=>r.degree!==undefined)?staffNotes(a.rows):''
  const degrees=a.rows.map((r,i)=>'<tr><td>'+(i+1)+'</td><td>'+fmt(r.p)+'</td><td>'+esc(r.letter)+'</td><td>'+signed(r.offset)+'</td><td>'+signed(r.deviation)+'</td></tr>').join('')
- return '<h3>'+a.signature+'</h3><p><strong>'+signature+'</strong></p>'+staff+'<div class="notes">'+seq+'</div>'+(a.omitted.length?'<p>Omitted letters · '+a.omitted.join(', ')+'</p>':'')+'<details><summary>Pitch positions and signed deviations</summary><div class="scroll"><table><thead><tr><th>Degree</th><th>Pitch (¢)</th><th>Letter / pitch</th><th>Alteration (¢)</th><th>From reference (¢)</th></tr></thead><tbody>'+degrees+'</tbody></table></div></details>'
+ return '<h3>'+a.signature+'</h3><p><strong>'+signature+'</strong></p>'+staff+'<div class="notes">'+seq+'</div>'+(a.omitted.length?'<p>Omitted letters · '+a.omitted.join(', ')+'</p>':'')+'<details><summary>Pitch positions and signed deviations</summary><div class="scroll"><table><thead><tr><th>Degree</th><th>Pitch (¢)</th><th>Letter / pitch</th><th>Alteration (¢)</th><th>From notation baseline (¢)</th></tr></thead><tbody>'+degrees+'</tbody></table></div></details>'
 }
 
 function staffNotes(rows){

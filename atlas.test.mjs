@@ -24,7 +24,7 @@ test('Every geographic model is selectable and transposable through 24 ring posi
   assert.ok(catalog.regions.find(g=>g.id===m.geo_id).model_ids.includes(m.id))
   for(let t=0;t<12;t+=.5){
    assert.doesNotMatch(notation(m,t,'Sharps','Major'),/undefined|NaN/)
-   const drawing=wheel(m,t,'Sharps','Major');assert.equal(drawing.includes('class="dial"'),m.circle_ready)
+   const drawing=wheel(m,t,'Sharps','Major');assert.ok(drawing.includes('class="dial"'));assert.equal(drawing.includes('span-comparison'),!m.circle_ready)
   }
  }
  assert.equal(rotateTonic(11.5,1),0)
@@ -47,5 +47,20 @@ test('playback preserves measured spans, microtonal intervals and transposition'
   assert.equal(hz.length,m.intervals_cents.length+1)
   m.intervals_cents.forEach((step,i)=>assert.ok(Math.abs(1200*Math.log2(hz[i+1]/hz[i])-step)<1e-8))
   assert.ok(Math.abs(hz[0]/frequencies(m,2)[0]-2**(50/1200))<1e-10)
+ }
+})
+
+import {nearestDegree} from './compare.js'
+test('Concentric rings retain original degrees and open comparisons share a linear axis',()=>{
+ const shur=catalog.scales.find(m=>m.name==='Shur')
+ const major=modes[0]
+ const draw=wheel(shur,2,'Sharps','Major',major)
+ assert.equal((draw.match(/data-layer="0"/g)||[]).length,shur.intervals_cents.length)
+ assert.equal((draw.match(/data-layer="1"/g)||[]).length,major.intervals_cents.length)
+ assert.deepEqual(nearestDegree([0,200],1190,true),{index:0,delta:10})
+ assert.deepEqual(nearestDegree([0,200],1190,false),{index:1,delta:-990})
+ for(const m of catalog.scales.filter(m=>!m.circle_ready)){
+  const chart=wheel(major,3,'Sharps','Major',m)
+  assert.match(chart,/shared cent axis/);assert.doesNotMatch(chart,/undefined|NaN/)
  }
 })
