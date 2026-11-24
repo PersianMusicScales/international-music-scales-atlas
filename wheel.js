@@ -1,4 +1,4 @@
-import {diagram,esc} from './diagrams.js'
+import {diagram,esc} from './diagrams.js?v=world4'
 import {analyze,fmt,names,signed} from './theory.js?v=regional1'
 
 export function rotateModel(model,degree){
@@ -10,7 +10,7 @@ const mod=(x,n)=>(x%n+n)%n
 export function rotateTonic(t,delta){return mod(Math.round(2*t)+delta,24)/2}
 export function tonicName(t,pref){return names(pref)[Math.floor(t)]+(t%1?' +50¢':'')}
 const xy=(pitch,r)=>[180+r*Math.sin(pitch*Math.PI/600),180-r*Math.cos(pitch*Math.PI/600)]
-export function wheel(model,t,pref,ref,other){
+export function wheel(model,t,pref,ref){
  let svg=diagram(model,Math.floor(t),pref,ref)
  if(!model.circle_ready)return svg
  const ring=[0,2,4,5,7,9,11].map((n,i)=>{
@@ -18,14 +18,6 @@ export function wheel(model,t,pref,ref,other){
   return '<line x1="'+a+'" y1="'+b+'" x2="'+c+'" y2="'+d+'" stroke="currentColor"/><text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" font-size="14">'+ 'CDEFGAB'[i]+'</text>'
  }).join('')
  svg=svg.replace(/<text x="180" y="180"[\s\S]*?<\/svg>$/,'')
- if(other?.circle_ready){
-  let pitch=0
-  for(const step of other.intervals_cents){
-   const [x,y]=xy(pitch,125)
-   svg+='<circle cx="'+x+'" cy="'+y+'" r="3.5" fill="#cf7e29"><title>Comparison pitch '+fmt(pitch)+' cents</title></circle>'
-   pitch+=step
-  }
- }
  return svg+'<g class="dial"><circle cx="180" cy="180" r="80" class="dialface"/>'+ring+'<text x="180" y="180" text-anchor="middle" font-size="17">'+esc(tonicName(t,pref))+'</text><text x="180" y="196" text-anchor="middle" font-size="10">TONIC</text></g></svg>'
 }
 const symbol=v=>Math.abs(v)<1e-6?'♮':Math.abs(v-100)<1e-6?'♯':Math.abs(v+100)<1e-6?'♭':signed(v)+'¢'

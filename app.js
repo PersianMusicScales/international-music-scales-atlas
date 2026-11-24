@@ -2,7 +2,7 @@ import {player} from './sound.js'
 import {modes,solfege} from './modes.js'
 import {esc} from './diagrams.js'
 import {fmt,names} from './theory.js'
-import {wheel,notation,rotateTonic,rotateModel,tonicName} from './wheel.js?v=studio1'
+import {wheel,notation,rotateTonic,rotateModel,tonicName} from './wheel.js?v=world4'
 import {mountGlobe} from './globe.js?v=journey3'
 const by=id=>document.getElementById(id)
 const query=new URLSearchParams(location.search)
@@ -37,7 +37,7 @@ function storeView(push=false){
 const globe=mountGlobe(by('earth'),regions,id=>chooseRegion(id,true))
 function chooseRegion(id,push=false,animate=true){
  const group=groups.find(g=>g.id===id);if(!group)return
- clearTimeout(menuTimer);audio.stop();active=null;region=id
+ closePanel();clearTimeout(menuTimer);audio.stop();active=null;region=id
  by('detail').hidden=true;by('atlas').hidden=false;by('region-list').open=false;by('region').value=id
  const models=all.filter(m=>m.geo_id===id)
  select('model',[['','Choose a scale'],...models.map(m=>[m.id,label(m)])],'')
@@ -67,21 +67,57 @@ function render(){
  const name=active.geo_id==='western'?modes[(modes.indexOf(active)+degree)%7].name:active.name
  by('title').textContent=tonicName(t,pref)+' '+name+(degree&&active.geo_id!=='western'?' · rotation '+(degree+1):'')
  by('subtitle').textContent=[active.local_script,active.tradition,active.category,active.variant].filter(Boolean).join(' · ')
- by('panels').innerHTML='<div '+(m.circle_ready?'class="interactive-wheel" tabindex="0" aria-label="Diatonic ring. Use left and right arrows to transpose."':'')+'>'+wheel(m,t,pref,ref,other?.circle_ready?other:null)+'</div>'
- by('steps').textContent='Ordered steps (¢) · '+m.intervals_cents.map(fmt).join(' · ')
- by('score').innerHTML=notation(m,t,pref,ref)
+ by('panels').innerHTML='<div '+(m.circle_ready?'class="interactive-wheel" tabindex="0" aria-label="Diatonic ring. Use left and right arrows to transpose."':'')+'>'+wheel(m,t,pref,ref)+'</div>'
+ by('steps').textContent='Steps in cents · '+m.intervals_cents.map(fmt).join(' · ')
+ by('score').querySelector('.content').innerHTML=notation(m,t,pref,ref)
  const refs=active.source_ids.map(id=>sources.find(s=>s.id===id)).filter(Boolean)
- by('explanation').innerHTML='<h2>About this tuning</h2><p>'+esc([active.name,active.tradition,active.tuning_model].filter(Boolean).join(' · '))+'</p><p>'+(m.circle_ready?'The outer circle shows the ordered intervals. Turn the inner diatonic ring to transpose the scale.':'This open span ends at its documented final pitch.')+'</p>'+refs.map(s=>'<p><a href="'+esc(s.url)+'">'+esc(s.citation)+'</a></p>').join('')+(refs.length?'<small>Source interpretation under review.</small>':'')
+ by('explanation').querySelector('.content').innerHTML='<h2>About this tuning</h2><p>'+esc([active.name,active.tradition,active.tuning_model].filter(Boolean).join(' · '))+'</p><p>'+(m.circle_ready?'Read clockwise from the top. Each colored arc spans one step between successive scale notes. Its width shows the interval size in cents (100¢ = one equal-tempered semitone). The inner letters are diatonic reference notes. Drag them to change the tonic. Signature lists the sounding notes and their exact alterations.':'This open span ends at its documented final pitch.')+'</p>'+refs.map(s=>'<p><a href="'+esc(s.url)+'">'+esc(s.citation)+'</a></p>').join('')+(refs.length?'<small>Source interpretation under review.</small>':'')
  by('comparison-panel').innerHTML=other?'<h3>'+esc(other.name)+'</h3>'+wheel(other,t,pref,ref)+notation(other,t,pref,ref):''
 }
 by('model').onchange=e=>{const m=lookup(e.target.value);if(m)openScale(m)}
 by('region').onchange=e=>{if(e.target.value)chooseRegion(e.target.value,true)}
 by('return').onclick=()=>chooseRegion(region,true,false)
 by('dismiss').onclick=()=>home(true)
-for(const [id,panel] of [['info','explanation'],['signature','score']])by(id).onclick=()=>{
- const el=by(panel);el.hidden=!el.hidden;by(id).setAttribute('aria-expanded',String(!el.hidden))
- if(!el.hidden)el.scrollIntoView({block:'nearest'})
+let opened
+function closePanel(restore=false,fade=false){
+ if(!opened)return
+ const {button,panel}=opened
+ const finish=()=>{if(opened?.panel!==panel)panel.hidden=true}
+ if(fade&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+  panel.animate([{opacity:1},{opacity:0}],{duration:110})
+  setTimeout(finish,110)
+ }else panel.hidden=true
+ button.setAttribute('aria-expanded','false')
+ opened=null
+ if(restore)button.focus({preventScroll:true})
 }
+function positionPanel(){
+ if(!opened)return
+ const {button,panel}=opened,box=button.getBoundingClientRect(),gap=10
+ const above=box.top-gap,below=innerHeight-box.bottom-gap
+ const down=below>=above
+ panel.style.maxHeight=Math.max(44,(down?below:above)-gap)+'px'
+ panel.style.left=Math.max(gap,Math.min(box.left,document.documentElement.clientWidth-panel.offsetWidth-gap))+'px'
+ panel.style.top=(down?box.bottom+gap:Math.max(gap,box.top-gap-panel.offsetHeight))+'px'
+}
+for(const [id,target] of [['info','explanation'],['signature','score']]){
+ const button=by(id),panel=by(target)
+ button.onclick=()=>{
+  if(opened?.button===button){closePanel(true,true);return}
+  closePanel();opened={button,panel};panel.hidden=false
+  button.setAttribute('aria-expanded','true')
+  positionPanel();panel.querySelector('.close').focus({preventScroll:true})
+ }
+ panel.querySelector('.close').onclick=()=>closePanel(true,true)
+}
+document.addEventListener('pointerdown',event=>{
+ if(opened&&!opened.button.contains(event.target)&&!opened.panel.contains(event.target))closePanel(false,!event.target.closest('#signature,#info'))
+})
+document.addEventListener('keydown',event=>{if(event.key==='Escape')closePanel(true,true)})
+const panelResize=new ResizeObserver(positionPanel)
+for(const panel of document.querySelectorAll('.overlay'))panelResize.observe(panel)
+window.addEventListener('resize',positionPanel)
+window.addEventListener('scroll',positionPanel)
 by('play').onclick=async()=>{if(playing){audio.stop();return}try{await audio.start(current(),Number(by('tonic').value))}catch{by('play').textContent='Retry playback'}}
 for(const id of ['degree','tonic','spelling','reference','comparison'])by(id).onchange=()=>{
  if(id==='spelling')tonics(by('tonic').value)

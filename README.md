@@ -1,8 +1,8 @@
-# International Music Scales Atlas
+# World Music Scales Atlas
 
 **Development preview.** Features and examples may change. Corrections and feedback are welcome.
 
-Start with D Dorian, or choose Shur to explore the Persian scale on any tonic. On a phone, add the Atlas to the home screen for standalone display. Select a geographic region to explore 216 documented tuning models across 17 navigation entries. Choose a category and tuning, then drag the inner diatonic ring to transpose in 50-cent steps. The outer circle preserves the ordered intervals. A degree selector explores rotations, and open spans retain their endpoints. Source interpretations remain under review.
+Start with D Dorian, or choose Shur to explore the Persian scale on any tonic. On a phone, add the Atlas to the home screen for standalone display. Select a geographic region to explore 216 documented tuning models across 17 navigation entries. Choose a regional scale, then drag the inner diatonic ring to transpose in 50-cent steps. The outer circle preserves the ordered intervals. A degree selector explores rotations, and open spans retain their endpoints. Source interpretations remain under review.
 
 The public catalog contains app-facing model metadata, tuning intervals, references and geographic navigation. The research workbooks and notes are private.
 
