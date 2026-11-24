@@ -40,3 +40,12 @@ test('Dorian signatures follow tonic, and Shur preserves its research tuning',()
  const shur=catalog.scales.find(m=>m.name==='Shur')
  for(const t of [0,2,11])assert.deepEqual(analyze(shur,t).rows.map(r=>r.p),positions(shur.intervals_cents).slice(0,-1))
 })
+import {frequencies} from './sound.js'
+test('playback preserves measured spans, microtonal intervals and transposition',()=>{
+ for(const m of catalog.scales){
+  const hz=frequencies(m,2.5)
+  assert.equal(hz.length,m.intervals_cents.length+1)
+  m.intervals_cents.forEach((step,i)=>assert.ok(Math.abs(1200*Math.log2(hz[i+1]/hz[i])-step)<1e-8))
+  assert.ok(Math.abs(hz[0]/frequencies(m,2)[0]-2**(50/1200))<1e-10)
+ }
+})

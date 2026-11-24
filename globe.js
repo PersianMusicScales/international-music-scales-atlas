@@ -226,7 +226,7 @@ export function mountGlobe(container, geography, onSelect) {
     frame=0; if(dead||document.hidden||!width||!height)return;
     if(flight){
       const t=clamp((now-flight.start)/420,0,1),smooth=t*t*(3-2*t);
-      view.lon=wrap(flight.lon+smooth*flight.dlon);view.lat=flight.lat+smooth*flight.dlat;
+      view.scale=flight.scale+smooth*(2.15-flight.scale);view.lon=wrap(flight.lon+smooth*flight.dlon);view.lat=flight.lat+smooth*flight.dlat;
       if(t===1)flight=null;else enqueue();
     }
     radius=Math.min(width,height)*.445*view.scale;
@@ -258,8 +258,8 @@ export function mountGlobe(container, geography, onSelect) {
     const g=geography.find(e=>e.id===id); selected=g?.id??null;close();
     if(g){
       flight=null;
-      if(flat||reduced.matches||document.hidden){view.lon=g.longitude;view.lat=g.latitude;}
-      else flight={start:performance.now(),lon:view.lon,lat:view.lat,dlon:wrap(g.longitude-view.lon),dlat:g.latitude-view.lat};
+      if(reduced.matches||document.hidden){view.lon=g.longitude;view.lat=g.latitude;view.scale=2.15;}
+      else flight={start:performance.now(),scale:view.scale,lon:view.lon,lat:view.lat,dlon:wrap(g.longitude-view.lon),dlat:g.latitude-view.lat};
     }
     enqueue();
   }
