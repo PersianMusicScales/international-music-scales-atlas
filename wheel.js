@@ -18,7 +18,7 @@ export function wheel(model,t,pref,ref){
   return '<line x1="'+a+'" y1="'+b+'" x2="'+c+'" y2="'+d+'" stroke="currentColor"/><text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" font-size="14">'+ 'CDEFGAB'[i]+'</text>'
  }).join('')
  svg=svg.replace(/<text x="180" y="180"[\s\S]*?<\/svg>$/,'')
- return svg+'<g class="dial"><circle cx="180" cy="180" r="80" class="dialface"/>'+ring+'<text x="180" y="180" text-anchor="middle" font-size="17">'+esc(tonicName(t,pref))+'</text><text x="180" y="196" text-anchor="middle" font-size="10">TONIC</text></g></svg>'
+ return svg+'<g class="dial"><circle cx="180" cy="180" r="80" class="dialface"/><g class="dial-notes">'+ring+'</g><path class="dial-arrows" d="M150 176l-4 4 4 4 M210 176l4 4-4 4" fill="none" stroke="currentColor"/><text x="180" y="180" text-anchor="middle" font-size="17">'+esc(tonicName(t,pref))+'</text><text x="180" y="196" text-anchor="middle" font-size="10">TONIC</text></g></svg>'
 }
 const symbol=v=>Math.abs(v)<1e-6?'♮':Math.abs(v-100)<1e-6?'♯':Math.abs(v+100)<1e-6?'♭':signed(v)+'¢'
 export function notation(m,t,pref,ref){

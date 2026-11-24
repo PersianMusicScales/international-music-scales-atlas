@@ -1,9 +1,9 @@
-import {player} from './sound.js'
+import {player} from './sound.js?v=touch5'
 import {modes,solfege} from './modes.js'
 import {esc} from './diagrams.js'
 import {fmt,names} from './theory.js'
-import {wheel,notation,rotateTonic,rotateModel,tonicName} from './wheel.js?v=world4'
-import {mountGlobe} from './globe.js?v=journey3'
+import {wheel,notation,rotateTonic,rotateModel,tonicName} from './wheel.js?v=touch5'
+import {mountGlobe} from './globe.js?v=touch5'
 const by=id=>document.getElementById(id)
 const query=new URLSearchParams(location.search)
 const response=await fetch(new URL('./catalog.json',import.meta.url))
@@ -67,7 +67,7 @@ function render(){
  const name=active.geo_id==='western'?modes[(modes.indexOf(active)+degree)%7].name:active.name
  by('title').textContent=tonicName(t,pref)+' '+name+(degree&&active.geo_id!=='western'?' · rotation '+(degree+1):'')
  by('subtitle').textContent=[active.local_script,active.tradition,active.category,active.variant].filter(Boolean).join(' · ')
- by('panels').innerHTML='<div '+(m.circle_ready?'class="interactive-wheel" tabindex="0" aria-label="Diatonic ring. Use left and right arrows to transpose."':'')+'>'+wheel(m,t,pref,ref)+'</div>'
+ by('panels').innerHTML='<div '+(m.circle_ready?'class="interactive-wheel" tabindex="0" aria-label="Diatonic ring. Use left and right arrows to transpose."':'')+'>'+wheel(m,t,pref,ref)+'</div>'+(m.circle_ready?'<p class="dial-tip">Drag to transpose · Tap left or right for ±50¢</p>':'')
  by('steps').textContent='Steps in cents · '+m.intervals_cents.map(fmt).join(' · ')
  by('score').querySelector('.content').innerHTML=notation(m,t,pref,ref)
  const refs=active.source_ids.map(id=>sources.find(s=>s.id===id)).filter(Boolean)
@@ -123,26 +123,45 @@ for(const id of ['degree','tonic','spelling','reference','comparison'])by(id).on
  if(id==='spelling')tonics(by('tonic').value)
  audio.stop();render();storeView()
 }
-function sync(){audio.stop();storeView()}
-function transpose(delta){by('tonic').value=rotateTonic(Number(by('tonic').value),delta);sync();render()}
+function applyTonic(value,step=0,save=true){
+ const previous=Number(by('tonic').value)
+ if(value===previous)return
+ by('tonic').value=value
+ if(playing)audio.retune(value-previous)
+ render();if(save)storeView()
+ if(step&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+  by('panels').querySelector('.dial-notes')?.animate(
+   [{transform:'rotate('+step*15+'deg)'},{transform:'rotate(0deg)'}],
+   {duration:140,easing:'ease-out'})
+ }
+}
+function transpose(delta){applyTonic(rotateTonic(Number(by('tonic').value),delta),delta)}
 by('left').onclick=()=>transpose(-1);by('right').onclick=()=>transpose(1)
 by('panels').onkeydown=e=>{if(['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();transpose(e.key==='ArrowRight'?1:-1);by('panels').firstElementChild.focus({preventScroll:true})}}
 let drag
 const angle=(e,c)=>Math.atan2(e.clientX-c.x,c.y-e.clientY)
 by('panels').onpointerdown=e=>{
- const dial=e.target.closest('.interactive-wheel .dial');if(!dial||e.button!==0)return
+ const dial=e.target.closest('.interactive-wheel .dial');if(drag||!dial||e.button!==0)return
  const box=dial.closest('svg').getBoundingClientRect(),c={x:box.left+box.width/2,y:box.top+box.height/2}
- drag={c,angle:angle(e,c),travel:0,base:Number(by('tonic').value),id:e.pointerId}
+ drag={c,x:e.clientX,y:e.clientY,moved:false,angle:angle(e,c),travel:0,base:Number(by('tonic').value),id:e.pointerId}
  by('panels').setPointerCapture(e.pointerId);e.preventDefault()
 }
 by('panels').onpointermove=e=>{
  if(!drag||e.pointerId!==drag.id)return
+ if(!drag.moved&&Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<6)return
+ drag.moved=true
  const a=angle(e,drag.c),delta=a-drag.angle
  drag.travel+=Math.atan2(Math.sin(delta),Math.cos(delta));drag.angle=a
  const t=rotateTonic(drag.base,-Math.round(drag.travel*12/Math.PI))
- if(t!==Number(by('tonic').value)){by('tonic').value=t;render();sync()}
+ applyTonic(t,0,false)
 }
-by('panels').onlostpointercapture=()=>{drag=null}
+by('panels').onpointerup=e=>{
+ if(!drag||e.pointerId!==drag.id)return
+ if(drag.moved)storeView()
+ else if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<6)transpose(e.clientX<drag.c.x?-1:1)
+ drag=null
+}
+by('panels').onpointercancel=by('panels').onlostpointercapture=e=>{if(e.pointerId===drag?.id){if(drag.moved)storeView();drag=null}}
 
 by('minus').onclick=()=>globe.zoom(1/1.2);by('plus').onclick=()=>globe.zoom(1.2);by('reset').onclick=()=>home(true)
 window.addEventListener('pagehide',audio.stop)
