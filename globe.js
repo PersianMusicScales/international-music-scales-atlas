@@ -9,6 +9,7 @@ const fragment = `
 precision highp float;
 uniform vec2 size, angle;
 uniform float radius;
+uniform vec3 backdrop;
 uniform sampler2D relief;
 const float pi=3.141592653589793;
 void main(){
@@ -16,7 +17,7 @@ void main(){
   float d=length(p);
   if(d>1.0){
     float halo=exp(-90.0*(d-1.0));
-    gl_FragColor=vec4(.35,.72,.71,.44*halo);
+    gl_FragColor=vec4(mix(backdrop,vec3(.35,.72,.71),.44*halo),1.);
     return;
   }
   float z=sqrt(max(0.0,1.0-dot(p,p)));
@@ -36,7 +37,7 @@ void main(){
 }`;
 
 function earthRenderer(canvas) {
-  const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false, antialias: false, powerPreference: 'low-power' });
+  const gl = canvas.getContext('webgl', { alpha: false, antialias: false, powerPreference: 'low-power' });
   if (!gl) throw Error('WebGL unavailable');
   const shader = (type, source) => {
     const result = gl.createShader(type);
@@ -68,18 +69,19 @@ function earthRenderer(canvas) {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
   gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,1,1,0,gl.RGB,gl.UNSIGNED_BYTE,new Uint8Array([28,64,72]));
-  const uniforms = Object.fromEntries(['size','angle','radius'].map(n => [n,gl.getUniformLocation(program,n)]));
+  const uniforms = Object.fromEntries(['size','angle','radius','backdrop'].map(n => [n,gl.getUniformLocation(program,n)]));
   return {
     texture(img) {
       gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,img);
       gl.generateMipmap(gl.TEXTURE_2D);
       gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);
     },
-    paint(w,h,r,lon,lat) {
+    paint(w,h,r,lon,lat,background) {
       gl.viewport(0,0,w,h);
       gl.uniform2f(uniforms.size,w,h);
       gl.uniform2f(uniforms.angle,lon*DEG,lat*DEG);
       gl.uniform1f(uniforms.radius,r);
+      gl.uniform3fv(uniforms.backdrop, background);
       gl.drawArrays(gl.TRIANGLES,0,3);
     },
     dispose() {
@@ -91,7 +93,7 @@ function earthRenderer(canvas) {
 function button(label, handler) {
   const el = document.createElement('button');
   el.type = 'button'; el.textContent = label;
-  el.style.cssText = 'min-height:44px;padding:6px 12px;border:1px solid #456167;border-radius:5px;background:#16353c;color:#f1f5ef;cursor:pointer;font:inherit;text-align:left';
+  el.style.cssText = 'min-height:44px;padding:6px 12px;border:1px solid #456167;border-radius:5px;background:var(--card);color:var(--text);cursor:pointer;font:inherit;text-align:left';
   el.addEventListener('click', handler);
   return el;
 }
@@ -128,11 +130,11 @@ export function mountGlobe(container, geography, onSelect) {
   }
   overlay.setAttribute('aria-label','Interactive globe. Arrow keys rotate, plus and minus zoom, Home resets. Choose a region in the accessible region list.');
   overlay.setAttribute('role','group'); overlay.tabIndex=0;
-  overlay.style.touchAction='pan-y'; overlay.style.cursor='grab';
+  overlay.style.touchAction='none'; overlay.style.cursor='grab';
   const ctx = overlay.getContext('2d');
   const popup = document.createElement('div');
   popup.setAttribute('role','region'); popup.setAttribute('aria-label','Map selection');
-  popup.style.cssText = 'position:absolute;inset:auto 8px 8px;max-height:78%;overflow:auto;max-width:310px;margin:auto;padding:10px;box-sizing:border-box;display:none;gap:5px;background:#10292ff5;color:#eff8ef;border:1px solid #618084;border-radius:8px;box-shadow:0 5px 18px #0005';
+  popup.style.cssText = 'position:absolute;inset:auto 8px 8px;max-height:78%;overflow:auto;max-width:310px;margin:auto;padding:10px;box-sizing:border-box;display:none;gap:5px;background:var(--card);color:var(--text);border:1px solid #618084;border-radius:8px;box-shadow:0 5px 18px #0005';
   layer.append(popup);
   const pointers=new Map();
   let selected=null, renderer, frame=0, flight=null, dead=false, width=0, height=0, radius=1, dpr=1;
@@ -153,11 +155,19 @@ export function mountGlobe(container, geography, onSelect) {
   const enqueue = () => {
     if (!frame && !dead && !document.hidden) frame=requestAnimationFrame(draw);
   };
+  let background;
+  function refreshTheme(){
+    const hex=getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+    background=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)/255);
+    enqueue();
+  }
+  listen(window,'atlas-theme',refreshTheme);
+  refreshTheme();
   const fallback=()=>{
     flat=true; renderer?.dispose();renderer=null; canvas.style.display='none';
     Object.assign(view,{lon:0,lat:0,scale:1});
     overlay.setAttribute('aria-label','Flat world map. Select markers or choose a region from the list.');
-    overlay.style.touchAction='pan-y';
+    overlay.style.touchAction='none';
     enqueue();
   };
   try {
@@ -230,7 +240,7 @@ export function mountGlobe(container, geography, onSelect) {
       if(t===1)flight=null;else enqueue();
     }
     radius=Math.min(width,height)*.445*view.scale;
-    renderer?.paint(canvas.width,canvas.height,radius*dpr,view.lon,view.lat);
+    renderer?.paint(canvas.width,canvas.height,radius*dpr,view.lon,view.lat,background);
     ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,width,height);
     if(flat){
       const mapW=width*view.scale, mapH=mapW/2;
@@ -330,7 +340,7 @@ export function mountGlobe(container, geography, onSelect) {
   }
   listen(overlay,'pointerup',e=>release(e,false));listen(overlay,'pointercancel',e=>release(e,true));
   listen(overlay,'pointerleave',()=>{hover=null;enqueue();});
-  listen(overlay,'wheel',e=>{if(e.ctrlKey){e.preventDefault();zoom(Math.exp(-e.deltaY*.012));}},{passive:false});
+  listen(overlay,'wheel',e=>{e.preventDefault();zoom(Math.exp(-e.deltaY*(e.ctrlKey ? .012 : .002)));},{passive:false});
   listen(overlay,'keydown',e=>{
     if(e.key==='Escape'){close();return;}
     const delta={ArrowUp:[0,10],ArrowDown:[0,-10],ArrowLeft:[-15,0],ArrowRight:[15,0]}[e.key];
@@ -343,15 +353,6 @@ export function mountGlobe(container, geography, onSelect) {
   });
   listen(document,'visibilitychange',()=>{if(document.hidden){flight=null;cancelAnimationFrame(frame);frame=0;}else enqueue();});
   listen(popup,'keydown',e=>{if(e.key==='Escape'){close();overlay.focus();}});
-  if(matchMedia('(pointer: coarse)').matches&&!flat){
-    const toggle=button('Free rotation',()=>{
-      const enabled=toggle.getAttribute('aria-pressed')!=='true';
-      toggle.setAttribute('aria-pressed',String(enabled));toggle.textContent=enabled?'Finish rotation':'Free rotation';
-      overlay.style.touchAction=enabled?'none':'pan-y';
-    });
-    toggle.setAttribute('aria-pressed','false');toggle.style.cssText+=';position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:12px;white-space:nowrap';
-    layer.insertBefore(toggle,popup);
-  }
   return {focus,zoom,reset,destroy(){
     dead=true;cancelAnimationFrame(frame);observer.disconnect();abort.abort();renderer?.dispose();layer.remove();
   }};

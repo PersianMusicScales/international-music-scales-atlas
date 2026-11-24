@@ -10,7 +10,9 @@ export function player(onChange){
   for(const voice of voices){try{voice.stop()}catch{}}
   voices=[];onChange(false)
  }
- return {stop,async start(model,tonic){
+ return {stop,retune(semitones){
+  for(const voice of voices)voice.frequency.value*=2**(semitones/12)
+ },async start(model,tonic){
   stop();const token=generation
   context??=new AudioContext();await context.resume()
   if(token!==generation)return
